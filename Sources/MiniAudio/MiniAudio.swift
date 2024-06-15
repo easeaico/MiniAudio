@@ -5,13 +5,5 @@ import MiniAudioC
 @_exported import struct MiniAudioC.ma_engine_config;
 @_exported import struct MiniAudioC.ma_log_level
 
-public struct MiniAudio {
+@_exported import func MiniAudioC.ma_engine_init
 
-}
-
-public extension MiniAudio {
-    @inlinable
-    static func ma_engine_init() {
-
-    }
-}
