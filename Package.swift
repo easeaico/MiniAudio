@@ -20,9 +20,7 @@ let package = Package(
         ),
         .target(
             name: "MiniAudioC",
-            cSettings: [
-                .headerSearchPath("./miniaudio")
-            ]
+            publicHeadersPath: "."
         ),
         .testTarget(
             name: "MiniAudioTests",
