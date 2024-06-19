@@ -52,7 +52,7 @@ public enum AudioFormat {
 public class AudioCapturer {
     var data: MiniAudioC.AudioData
 
-    init() {
+    public init() {
         self.data = MiniAudioC.AudioData(buffer: nil, size: 0, offset: 0)
     }
 
@@ -62,7 +62,7 @@ public class AudioCapturer {
         }
     }
 
-    func initAudioCaptureDevice(_ encodingFormat: EncodingFormat,
+    public func initAudioCaptureDevice(_ encodingFormat: EncodingFormat,
                                   _ format: AudioFormat, 
                                   _ channels: UInt32,
                                   _ sampleRate: UInt32) throws  {
@@ -73,24 +73,24 @@ public class AudioCapturer {
         }
     }
 
-     func startAudioCapturing() throws {
+    public func startAudioCapturing() throws {
         let result = MiniAudioC.startAudioCapturing()
         if result != 0 {
             throw MiniAudioErrors.capturingAudioFailed
         }
     }
 
-    func closeAudioCaptureDevice() {
+    public func closeAudioCaptureDevice() {
         MiniAudioC.closeAudioCaptureDevice()
     }
     
-    func getData() -> Data {
+    public func getData() -> Data {
         return Data(bytes: self.data.buffer, count: self.data.size)
     }
 }
 
 public class AudioPlayer {
-    func initAudioPlaybackDevice(forPlay data: Data) throws {
+    public func initAudioPlaybackDevice(forPlay data: Data) throws {
         try data.withUnsafeBytes { rawBufferPointer in
             let pointer = rawBufferPointer.bindMemory(to: UInt8.self).baseAddress!
             let result = MiniAudioC.initAudioPlackbackDevice(pointer, data.count)
@@ -100,14 +100,14 @@ public class AudioPlayer {
         }
     }
     
-    func startAudioPlaying() throws {
+    public func startAudioPlaying() throws {
         let result = MiniAudioC.startAudioPlaying()
         if result != 0 {
             throw MiniAudioErrors.playingAudioFailed
         }
     }
     
-    func closeAudioPlaybackDevice() {
+    public func closeAudioPlaybackDevice() {
         MiniAudioC.closeAudioPlaybackDevice()
     }
 }
