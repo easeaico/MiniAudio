@@ -1,12 +1,34 @@
 import XCTest
 @testable import MiniAudio
+import Foundation
 
 final class MiniAudioTests: XCTestCase {
-    func testExample() throws {
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
+    func testPlayback() throws {
+        let audioData = try Data(contentsOf: URL(fileURLWithPath: "dune.wav"))
+        let player = MiniAudio.AudioPlayer()
+        try player.initAudioPlaybackDevice(forPlay: audioData)
+        try player.startAudioPlaying()
+        Thread.sleep(forTimeInterval: 5)
+        player.closeAudioPlaybackDevice()
+    }
 
-        // Defining Test Cases and Test Methods
-        // https://developer.apple.com/documentation/xctest/defining_test_cases_and_test_methods
+    func testCapture() throws {
+        do {
+            let capturer = MiniAudio.AudioCapturer()
+            try capturer.initAudioCaptureDevice(EncodingFormat.wav, AudioFormat.s16, 1, 16000)
+            try capturer.startAudioCapturing()
+            Thread.sleep(forTimeInterval: 10)
+            capturer.closeAudioCaptureDevice()
+
+            let data = capturer.getData()
+            let player = MiniAudio.AudioPlayer()
+            try player.initAudioPlaybackDevice(forPlay: data)
+            try player.startAudioPlaying()
+            Thread.sleep(forTimeInterval: 15)
+            player.closeAudioPlaybackDevice()
+            //try data.write(to: URL(fileURLWithPath: "record.wav"), options: .atomicWrite)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
     }
 }

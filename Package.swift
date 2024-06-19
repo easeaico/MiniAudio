@@ -5,6 +5,9 @@ import PackageDescription
 
 let package = Package(
     name: "MiniAudio",
+    platforms: [
+        .macOS(.v10_15),
+    ],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
@@ -20,10 +23,15 @@ let package = Package(
         ),
         .target(
             name: "MiniAudioC",
-            publicHeadersPath: "."
+            sources: [
+                "miniaudio.c",
+                "playback.c",
+                "capture.c",
+            ]
         ),
         .testTarget(
             name: "MiniAudioTests",
-            dependencies: ["MiniAudio"]),
+            dependencies: ["MiniAudio"]
+        )
     ]
 )
