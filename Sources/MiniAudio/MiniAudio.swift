@@ -90,6 +90,8 @@ public class AudioCapturer {
 }
 
 public class AudioPlayer {
+    public init() {}
+
     public func initAudioPlaybackDevice(forPlay data: Data) throws {
         try data.withUnsafeBytes { rawBufferPointer in
             let pointer = rawBufferPointer.bindMemory(to: UInt8.self).baseAddress!
