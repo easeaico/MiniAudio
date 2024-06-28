@@ -8,7 +8,8 @@ final class MiniAudioTests: XCTestCase {
         let player = MiniAudio.AudioPlayer()
         try player.initAudioPlaybackDevice(forPlay: audioData)
         try player.startAudioPlaying()
-        Thread.sleep(forTimeInterval: 5)
+        Thread.sleep(forTimeInterval: 2)
+        Thread.sleep(forTimeInterval: Double(player.getDuration()))
         player.closeAudioPlaybackDevice()
     }
 
@@ -26,7 +27,6 @@ final class MiniAudioTests: XCTestCase {
             try player.startAudioPlaying()
             Thread.sleep(forTimeInterval: 15)
             player.closeAudioPlaybackDevice()
-            //try data.write(to: URL(fileURLWithPath: "record.wav"), options: .atomicWrite)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }

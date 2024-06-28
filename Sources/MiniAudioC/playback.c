@@ -3,65 +3,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-ma_device playbackDevice;
-ma_decoder playbackDecoder;
+static ma_device playbackDevice;
 
-void decode_data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
+static void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
                           ma_uint32 frameCount) {
-  ma_decoder *pDecoder = (ma_decoder *)pDevice->pUserData;
-  if (pDecoder == NULL) {
-    return;
-  }
-
-  ma_decoder_read_pcm_frames(pDecoder, pOutput, frameCount, NULL);
-
-  (void)pInput;
+   ma_audio_buffer* pAudioBuffer = (ma_audio_buffer*)pDevice->pUserData;
+   ma_audio_buffer_read_pcm_frames(pAudioBuffer, pOutput, frameCount, MA_FALSE);
+   (void)pInput;   /* Unused. */
 }
 
-int initAudioPlackbackDevice(const void *pData, size_t dataSize) {
-  ma_result result;
-  ma_device_config deviceConfig;
+int initAudioPlackbackDevice(AudioData *audioData) {
+  ma_decoder_config decoderConfig = ma_decoder_config_init_default();
+  ma_uint64 pFrameCount;
+  void* ppPCMFrames;
+  if (ma_decode_memory(audioData->buffer, audioData->size, &decoderConfig, &pFrameCount, &ppPCMFrames) != MA_SUCCESS) {
+      printf("Failed to decode wave memory.\n");
+      return -1;
+  }
 
-  result = ma_decoder_init_memory(pData, dataSize, NULL, &playbackDecoder);
-  if (result != MA_SUCCESS) {
+  ma_audio_buffer buffer;
+  ma_audio_buffer_config bufferConfig;
+
+  bufferConfig = ma_audio_buffer_config_init(decoderConfig.format, decoderConfig.channels, pFrameCount, ppPCMFrames, NULL);
+  if (ma_audio_buffer_init(&bufferConfig, &buffer) != MA_SUCCESS) {
+    printf("Failed to init audio buffer.\n");
     return -2;
   }
 
-  deviceConfig = ma_device_config_init(ma_device_type_playback);
-  deviceConfig.playback.format = playbackDecoder.outputFormat;
-  deviceConfig.playback.channels = playbackDecoder.outputChannels;
-  deviceConfig.sampleRate = playbackDecoder.outputSampleRate;
-  deviceConfig.dataCallback = decode_data_callback;
-  deviceConfig.pUserData = &playbackDecoder;
+
+  ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
+  deviceConfig.playback.format = decoderConfig.format;
+  deviceConfig.playback.channels = decoderConfig.channels;
+  deviceConfig.sampleRate = decoderConfig.sampleRate;
+  deviceConfig.dataCallback = data_callback;
+  deviceConfig.pUserData = &buffer;
 
   if (ma_device_init(NULL, &deviceConfig, &playbackDevice) != MA_SUCCESS) {
     printf("Failed to open playback device.\n");
-    ma_decoder_uninit(&playbackDecoder);
     return -3;
   }
 
-  return 0;
+  int duration = pFrameCount / decoderConfig.sampleRate + 1;
+  return duration;
 }
 
 int startAudioPlaying() {
   if (ma_device_start(&playbackDevice) != MA_SUCCESS) {
     printf("Failed to start playback 1 device.\n");
     ma_device_uninit(&playbackDevice);
-    ma_decoder_uninit(&playbackDecoder);
     return -4;
-  }
-
-  return 0;
-}
-
-int stopAudioPlaying() {
-  ma_result result;
-
-  result = ma_device_stop(&playbackDevice);
-  if (result != MA_SUCCESS) {
-    ma_device_uninit(&playbackDevice);
-    printf("Failed to start device.\n");
-    return -3;
   }
 
   return 0;
@@ -69,5 +59,4 @@ int stopAudioPlaying() {
 
 void closeAudioPlaybackDevice() {
   ma_device_uninit(&playbackDevice);
-  ma_decoder_uninit(&playbackDecoder);
 }

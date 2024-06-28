@@ -1,9 +1,9 @@
 #ifndef PLAYBACK_H
 #define PLAYBACK_H
 
-#include <stdio.h>
+#include "audiodata.h"
 
-extern int initAudioPlackbackDevice(const void *pData, size_t dataSize);
+extern int initAudioPlackbackDevice(AudioData *audioData);
 
 extern int startAudioPlaying();
 

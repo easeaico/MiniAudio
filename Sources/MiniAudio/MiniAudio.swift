@@ -50,7 +50,7 @@ public enum AudioFormat {
 }
 
 public class AudioCapturer {
-    var data: MiniAudioC.AudioData
+    private var data: AudioData
 
     public init() {
         self.data = MiniAudioC.AudioData(buffer: nil, size: 0, offset: 0)
@@ -90,16 +90,24 @@ public class AudioCapturer {
 }
 
 public class AudioPlayer {
-    public init() {}
+    private var playDuration: Int = 0
 
     public func initAudioPlaybackDevice(forPlay data: Data) throws {
-        try data.withUnsafeBytes { rawBufferPointer in
+        var d = data
+        try d.withUnsafeMutableBytes { rawBufferPointer in
             let pointer = rawBufferPointer.bindMemory(to: UInt8.self).baseAddress!
-            let result = MiniAudioC.initAudioPlackbackDevice(pointer, data.count)
-            if result != 0 {
-                throw MiniAudioErrors.initAudioDeviceFailed
+            var audioData = MiniAudioC.AudioData(buffer: pointer, size: data.count, offset: 0)
+            let result = MiniAudioC.initAudioPlackbackDevice(&audioData)
+            if result < 0 {
+                throw MiniAudioErrors.initAudioDeviceFailed 
             }
+
+            self.playDuration = Int(result)
         }
+    }
+    
+    public func getDuration() -> Int {
+        return self.playDuration
     }
     
     public func startAudioPlaying() throws {
@@ -108,7 +116,7 @@ public class AudioPlayer {
             throw MiniAudioErrors.playingAudioFailed
         }
     }
-    
+
     public func closeAudioPlaybackDevice() {
         MiniAudioC.closeAudioPlaybackDevice()
     }
