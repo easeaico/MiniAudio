@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 static ma_device playbackDevice;
+static ma_audio_buffer buffer;
 
 static void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
                           ma_uint32 frameCount) {
@@ -12,8 +13,13 @@ static void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
    (void)pInput;   /* Unused. */
 }
 
-int initAudioPlackbackDevice(AudioData *audioData) {
+int initAudioPlackbackDevice(AudioData *audioData, ma_encoding_format encodingFormat, ma_format format, ma_uint32 channels, ma_uint32 sampleRate) {
   ma_decoder_config decoderConfig = ma_decoder_config_init_default();
+  decoderConfig.encodingFormat = encodingFormat;
+  decoderConfig.format = format;
+  decoderConfig.channels = channels;
+  decoderConfig.sampleRate = sampleRate;
+    
   ma_uint64 pFrameCount;
   void* ppPCMFrames;
   if (ma_decode_memory(audioData->buffer, audioData->size, &decoderConfig, &pFrameCount, &ppPCMFrames) != MA_SUCCESS) {
@@ -21,15 +27,12 @@ int initAudioPlackbackDevice(AudioData *audioData) {
       return -1;
   }
 
-  ma_audio_buffer buffer;
-  ma_audio_buffer_config bufferConfig;
-
-  bufferConfig = ma_audio_buffer_config_init(decoderConfig.format, decoderConfig.channels, pFrameCount, ppPCMFrames, NULL);
+  ma_allocation_callbacks allocationCallbacks;
+  ma_audio_buffer_config bufferConfig = ma_audio_buffer_config_init(decoderConfig.format, decoderConfig.channels, pFrameCount, ppPCMFrames, &allocationCallbacks);
   if (ma_audio_buffer_init(&bufferConfig, &buffer) != MA_SUCCESS) {
     printf("Failed to init audio buffer.\n");
     return -2;
   }
-
 
   ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
   deviceConfig.playback.format = decoderConfig.format;
@@ -43,8 +46,7 @@ int initAudioPlackbackDevice(AudioData *audioData) {
     return -3;
   }
 
-  int duration = pFrameCount / decoderConfig.sampleRate + 1;
-  return duration;
+  return (int)(pFrameCount / decoderConfig.sampleRate) + 1;
 }
 
 int startAudioPlaying() {
@@ -58,5 +60,6 @@ int startAudioPlaying() {
 }
 
 void closeAudioPlaybackDevice() {
-  ma_device_uninit(&playbackDevice);
+    ma_audio_buffer_uninit(&buffer);
+    ma_device_uninit(&playbackDevice);
 }
