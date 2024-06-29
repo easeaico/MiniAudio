@@ -50,11 +50,8 @@ public enum AudioFormat {
 }
 
 public class AudioCapturer {
-    private var data: AudioData
-
-    public init() {
-        self.data = MiniAudioC.AudioData(buffer: nil, size: 0, offset: 0)
-    }
+    private var ctx: MiniAudioC.CaptureContext=MiniAudioC.CaptureContext(device: MiniAudioC.ma_device(), encoder: MiniAudioC.ma_encoder())
+    private var data: AudioData = MiniAudioC.AudioData(buffer: nil, size: 0, offset: 0)
 
     deinit {
         if (self.data.buffer != nil) {
@@ -67,21 +64,21 @@ public class AudioCapturer {
                                   _ channels: UInt32,
                                   _ sampleRate: UInt32) throws  {
         let (ef, af) = (encodingFormat.maType(), format.maType())
-        let result = MiniAudioC.initAudioCaptureDevice(ef, af, channels, sampleRate, &self.data)
+        let result = MiniAudioC.initAudioCaptureDevice(&self.ctx, ef, af, channels, sampleRate, &self.data)
         if result != 0 {
             throw MiniAudioErrors.initAudioDeviceFailed
         }
     }
 
     public func startAudioCapturing() throws {
-        let result = MiniAudioC.startAudioCapturing()
+        let result = MiniAudioC.startAudioCapturing(&self.ctx)
         if result != 0 {
             throw MiniAudioErrors.capturingAudioFailed
         }
     }
 
     public func closeAudioCaptureDevice() {
-        MiniAudioC.closeAudioCaptureDevice()
+        MiniAudioC.closeAudioCaptureDevice(&self.ctx)
     }
     
     public func getData() -> Data {
@@ -90,17 +87,15 @@ public class AudioCapturer {
 }
 
 public class AudioPlayer {
+    private var ctx: PlaybackContext = MiniAudioC.PlaybackContext(device: MiniAudioC.ma_device(), audioBuffer: MiniAudioC.ma_audio_buffer())
     private var playDuration: Int = 0
 
-    public func initAudioPlaybackDevice(forPlay data: Data, _ encodingFormat: EncodingFormat,
-                                        _ format: AudioFormat,
-                                        _ channels: UInt32,
-                                        _ sampleRate: UInt32) throws {
+    public func initAudioPlaybackDevice(forPlay data: Data) throws {
         var d = data
         try d.withUnsafeMutableBytes { rawBufferPointer in
             let pointer = rawBufferPointer.bindMemory(to: UInt8.self).baseAddress!
             var audioData = MiniAudioC.AudioData(buffer: pointer, size: data.count, offset: 0)
-            let result = MiniAudioC.initAudioPlackbackDevice(&audioData, encodingFormat.maType(), format.maType(), channels, sampleRate)
+            let result = MiniAudioC.initAudioPlackbackDevice(&self.ctx, &audioData)
             if result < 0 {
                 throw MiniAudioErrors.initAudioDeviceFailed 
             }
@@ -114,13 +109,13 @@ public class AudioPlayer {
     }
     
     public func startAudioPlaying() throws {
-        let result = MiniAudioC.startAudioPlaying()
+        let result = MiniAudioC.startAudioPlaying(&self.ctx)
         if result != 0 {
             throw MiniAudioErrors.playingAudioFailed
         }
     }
 
     public func closeAudioPlaybackDevice() {
-        MiniAudioC.closeAudioPlaybackDevice()
+        MiniAudioC.closeAudioPlaybackDevice(&self.ctx)
     }
 }

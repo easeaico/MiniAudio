@@ -4,10 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-static ma_device captureDevice;
-static ma_encoder captureEncoder;
 
-static ma_result my_encoder_write_proc(ma_encoder *pEncoder,
+static ma_result encoder_write_proc(ma_encoder *pEncoder,
                                        const void *pBufferIn,
                                        size_t bytesToWrite,
                                        size_t *pBytesWritten) {
@@ -50,8 +48,11 @@ void encode_data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   (void)pOutput;
 }
 
-int initAudioCaptureDevice(ma_encoding_format encodingFormat, ma_format format,
-                           ma_uint32 channels, ma_uint32 sampleRate,
+int initAudioCaptureDevice(CaptureContext *ctx, 
+                           ma_encoding_format encodingFormat,
+                           ma_format format,
+                           ma_uint32 channels, 
+                           ma_uint32 sampleRate,
                            AudioData *audioData) {
   ma_result result;
   ma_encoder_config encoderConfig;
@@ -59,20 +60,20 @@ int initAudioCaptureDevice(ma_encoding_format encodingFormat, ma_format format,
 
   encoderConfig =
       ma_encoder_config_init(encodingFormat, format, channels, sampleRate);
-  if (ma_encoder_init(my_encoder_write_proc, my_encoder_seek_proc,
+  if (ma_encoder_init(encoder_write_proc, my_encoder_seek_proc,
                       (void *)audioData, &encoderConfig,
-                      &captureEncoder) != MA_SUCCESS) {
+                      &ctx->encoder) != MA_SUCCESS) {
     return -1;
   }
 
   deviceConfig = ma_device_config_init(ma_device_type_capture);
-  deviceConfig.capture.format = captureEncoder.config.format;
-  deviceConfig.capture.channels = captureEncoder.config.channels;
-  deviceConfig.sampleRate = captureEncoder.config.sampleRate;
+  deviceConfig.capture.format = ctx->encoder.config.format;
+  deviceConfig.capture.channels = ctx->encoder.config.channels;
+  deviceConfig.sampleRate = ctx->encoder.config.sampleRate;
   deviceConfig.dataCallback = encode_data_callback;
-  deviceConfig.pUserData = &captureEncoder;
+  deviceConfig.pUserData = &ctx->encoder;
 
-  result = ma_device_init(NULL, &deviceConfig, &captureDevice);
+  result = ma_device_init(NULL, &deviceConfig, &ctx->device);
   if (result != MA_SUCCESS) {
     printf("Failed to initialize capture device.\n");
     return -2;
@@ -81,21 +82,21 @@ int initAudioCaptureDevice(ma_encoding_format encodingFormat, ma_format format,
   return 0;
 }
 
-int startAudioCapturing() {
+int startAudioCapturing(CaptureContext *ctx) {
   ma_result result;
 
-  result = ma_device_start(&captureDevice);
+  result = ma_device_start(&ctx->device);
   if (result != MA_SUCCESS) {
     printf("Failed to start device for capturing.\n");
-    ma_encoder_uninit(&captureEncoder);
-    ma_device_uninit(&captureDevice);
+    ma_encoder_uninit(&ctx->encoder);
+    ma_device_uninit(&ctx->device);
     return -3;
   }
 
   return 0;
 }
 
-void closeAudioCaptureDevice() {
-  ma_device_uninit(&captureDevice);
-  ma_encoder_uninit(&captureEncoder);
+void closeAudioCaptureDevice(CaptureContext *ctx) {
+  ma_device_uninit(&ctx->device);
+  ma_encoder_uninit(&ctx->encoder);
 }

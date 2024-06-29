@@ -3,11 +3,14 @@
 
 #include "audiodata.h"
 
-extern int initAudioPlackbackDevice(AudioData *audioData, ma_encoding_format encodingFormat, ma_format format, ma_uint32 channels, ma_uint32 sampleRate);
+typedef struct PlaybackContext {
+    ma_device device;
+    ma_audio_buffer audioBuffer;
+} PlaybackContext;
 
-extern int startAudioPlaying();
+extern int initAudioPlackbackDevice(PlaybackContext *ctx, AudioData *audioData);
 
-extern int stopAudioPlaying();
+extern int startAudioPlaying(PlaybackContext *ctx);
 
-extern void closeAudioPlaybackDevice();
+extern void closeAudioPlaybackDevice(PlaybackContext *ctx);
 #endif
