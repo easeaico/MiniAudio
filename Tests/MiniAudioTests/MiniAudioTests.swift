@@ -21,7 +21,7 @@ final class MiniAudioTests: XCTestCase {
             let capturer = AudioCapturer()
             try capturer.initAudioCaptureDevice(EncodingFormat.wav, AudioFormat.s16, 1, 16000)
             try capturer.startAudioCapturing()
-            Thread.sleep(forTimeInterval: 20)
+            Thread.sleep(forTimeInterval: 5)
             capturer.closeAudioCaptureDevice()
 
             let data = capturer.getData()

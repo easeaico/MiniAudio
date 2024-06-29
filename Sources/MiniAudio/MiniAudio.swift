@@ -50,8 +50,13 @@ public enum AudioFormat {
 }
 
 public class AudioCapturer {
-    private var ctx: MiniAudioC.CaptureContext=MiniAudioC.CaptureContext(device: MiniAudioC.ma_device(), encoder: MiniAudioC.ma_encoder())
-    private var data: AudioData = MiniAudioC.AudioData(buffer: nil, size: 0, offset: 0)
+    private var ctx: MiniAudioC.CaptureContext
+    private var data: AudioData
+
+    public init() {
+        self.ctx = MiniAudioC.CaptureContext(device: MiniAudioC.ma_device(), encoder: MiniAudioC.ma_encoder())
+        self.data = MiniAudioC.AudioData(buffer: nil, size: 0, offset: 0)
+    }
 
     deinit {
         if (self.data.buffer != nil) {
@@ -87,8 +92,13 @@ public class AudioCapturer {
 }
 
 public class AudioPlayer {
-    private var ctx: PlaybackContext = MiniAudioC.PlaybackContext(device: MiniAudioC.ma_device(), audioBuffer: MiniAudioC.ma_audio_buffer())
-    private var playDuration: Int = 0
+    private var ctx: PlaybackContext
+    private var playDuration: Int
+
+    public init(){
+        self.ctx = MiniAudioC.PlaybackContext(device: MiniAudioC.ma_device(), audioBuffer: MiniAudioC.ma_audio_buffer())
+        self.playDuration = 0
+    }
 
     public func initAudioPlaybackDevice(forPlay data: Data) throws {
         var d = data
