@@ -93,7 +93,7 @@ public class AudioCapturer {
 
 public class AudioPlayer {
     private var ctx: PlaybackContext
-    private var playDuration: UInt64
+    private var playDuration: UInt32
 
     public init(){
         self.ctx = MiniAudioC.PlaybackContext(device: MiniAudioC.ma_device(), audioBuffer: MiniAudioC.ma_audio_buffer())
@@ -112,7 +112,7 @@ public class AudioPlayer {
         }
     }
     
-    public func getDuration() -> UInt64 {
+    public func getDuration() -> UInt32 {
         return self.playDuration
     }
     

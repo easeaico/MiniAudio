@@ -4,15 +4,12 @@ import Foundation
 
 final class MiniAudioTests: XCTestCase {
     func testPlayback() throws {
-        let resourceUrl = Bundle.module.url(
-          forResource: "street",
-          withExtension: "mp3"
-        )
-        let audioData = try Data(contentsOf: resourceUrl!)
+        let url = Bundle.module.url(forResource: "street", withExtension: "mp3")!
+        let audioData = try Data(contentsOf: url)
         let player = MiniAudio.AudioPlayer()
         try player.initAudioPlaybackDevice(forPlay: audioData)
         try player.startAudioPlaying()
-        sleep(UInt32(player.getDuration()))
+        sleep(player.getDuration())
         player.closeAudioPlaybackDevice()
     }
 
@@ -28,7 +25,7 @@ final class MiniAudioTests: XCTestCase {
             let player = MiniAudio.AudioPlayer()
             try player.initAudioPlaybackDevice(forPlay: data)
             try player.startAudioPlaying()
-            sleep(UInt32(player.getDuration()))
+            sleep(player.getDuration())
             player.closeAudioPlaybackDevice()
         } catch {
             XCTFail("Unexpected error: \(error)")
