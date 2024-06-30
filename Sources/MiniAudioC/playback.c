@@ -10,7 +10,7 @@ static void data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   (void)pInput; /* Unused. */
 }
 
-int initAudioPlackbackDevice(PlaybackContext *ctx, AudioData *audioData) {
+int initAudioPlackbackDevice(PlaybackContext *ctx, AudioData *audioData, ma_uint64* duration) {
   ma_decoder_config decoderConfig = ma_decoder_config_init_default();
   ma_uint64 pFrameCount;
   void *ppPCMFrames;
@@ -42,7 +42,8 @@ int initAudioPlackbackDevice(PlaybackContext *ctx, AudioData *audioData) {
     return -3;
   }
 
-  return (int)(pFrameCount / decoderConfig.sampleRate) + 1;
+  *duration = (ma_uint64)(pFrameCount / decoderConfig.sampleRate) + 1;
+    return 0;
 }
 
 int startAudioPlaying(PlaybackContext *ctx) {

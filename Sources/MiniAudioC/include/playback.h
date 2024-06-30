@@ -8,7 +8,7 @@ typedef struct PlaybackContext {
     ma_audio_buffer audioBuffer;
 } PlaybackContext;
 
-extern int initAudioPlackbackDevice(PlaybackContext *ctx, AudioData *audioData);
+extern int initAudioPlackbackDevice(PlaybackContext *ctx, AudioData *audioData, ma_uint64* duration);
 
 extern int startAudioPlaying(PlaybackContext *ctx);
 

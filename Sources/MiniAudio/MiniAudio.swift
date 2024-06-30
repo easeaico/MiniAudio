@@ -93,7 +93,7 @@ public class AudioCapturer {
 
 public class AudioPlayer {
     private var ctx: PlaybackContext
-    private var playDuration: Int
+    private var playDuration: UInt64
 
     public init(){
         self.ctx = MiniAudioC.PlaybackContext(device: MiniAudioC.ma_device(), audioBuffer: MiniAudioC.ma_audio_buffer())
@@ -105,16 +105,14 @@ public class AudioPlayer {
         try d.withUnsafeMutableBytes { rawBufferPointer in
             let pointer = rawBufferPointer.bindMemory(to: UInt8.self).baseAddress!
             var audioData = MiniAudioC.AudioData(buffer: pointer, size: data.count, offset: 0)
-            let result = MiniAudioC.initAudioPlackbackDevice(&self.ctx, &audioData)
+            let result = MiniAudioC.initAudioPlackbackDevice(&self.ctx, &audioData, &self.playDuration)
             if result < 0 {
                 throw MiniAudioErrors.initAudioDeviceFailed 
             }
-
-            self.playDuration = Int(result)
         }
     }
     
-    public func getDuration() -> Int {
+    public func getDuration() -> UInt64 {
         return self.playDuration
     }
     

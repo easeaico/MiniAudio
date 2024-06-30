@@ -5,14 +5,14 @@ import Foundation
 final class MiniAudioTests: XCTestCase {
     func testPlayback() throws {
         let resourceUrl = Bundle.module.url(
-          forResource: "dune",
-          withExtension: "wav"
+          forResource: "street",
+          withExtension: "mp3"
         )
         let audioData = try Data(contentsOf: resourceUrl!)
         let player = MiniAudio.AudioPlayer()
         try player.initAudioPlaybackDevice(forPlay: audioData)
         try player.startAudioPlaying()
-        Thread.sleep(forTimeInterval: Double(player.getDuration()))
+        sleep(UInt32(player.getDuration()))
         player.closeAudioPlaybackDevice()
     }
 
@@ -21,14 +21,14 @@ final class MiniAudioTests: XCTestCase {
             let capturer = AudioCapturer()
             try capturer.initAudioCaptureDevice(EncodingFormat.wav, AudioFormat.s16, 1, 16000)
             try capturer.startAudioCapturing()
-            Thread.sleep(forTimeInterval: 5)
+            sleep(5)
             capturer.closeAudioCaptureDevice()
 
             let data = capturer.getData()
             let player = MiniAudio.AudioPlayer()
             try player.initAudioPlaybackDevice(forPlay: data)
             try player.startAudioPlaying()
-            Thread.sleep(forTimeInterval: Double(player.getDuration()))
+            sleep(UInt32(player.getDuration()))
             player.closeAudioPlaybackDevice()
         } catch {
             XCTFail("Unexpected error: \(error)")

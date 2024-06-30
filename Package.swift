@@ -19,8 +19,7 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "MiniAudio",
-            dependencies: ["MiniAudioC"],
-            resources: [.process("dune.wav")]
+            dependencies: ["MiniAudioC"]
         ),
         .target(
             name: "MiniAudioC",
@@ -32,7 +31,8 @@ let package = Package(
         ),
         .testTarget(
             name: "MiniAudioTests",
-            dependencies: ["MiniAudio"]
+            dependencies: ["MiniAudio"],
+            resources: [.process("street.mp3")]
         )
     ]
 )
