@@ -57,6 +57,6 @@ int startAudioPlaying(PlaybackContext *ctx) {
 }
 
 void closeAudioPlaybackDevice(PlaybackContext *ctx) {
-  ma_audio_buffer_uninit(&ctx->audioBuffer);
-  ma_device_uninit(&ctx->device);
+    ma_device_uninit(&ctx->device);
+    ma_audio_buffer_uninit(&ctx->audioBuffer);
 }
