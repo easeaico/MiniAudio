@@ -66,7 +66,7 @@ public class AudioCapturer {
         }
     }
 
-    public func initAudioCaptureDevice(_ encodingFormat: EncodingFormat,
+    public func initCaptureDevice(_ encodingFormat: EncodingFormat,
                                   _ format: AudioFormat, 
                                   _ channels: UInt32,
                                   _ sampleRate: UInt32) throws  {
