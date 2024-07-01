@@ -14,17 +14,17 @@ final class MiniAudioTests: XCTestCase {
         
         let player = MiniAudio.AudioPlayer()
         
-        try player.initPlaybackDevice(for: data1)
+        try player.initDeviceOrUpdate(for: data1)
         try player.startAudioPlaying()
         sleep(player.getDuration())
         try player.stopAudioPlaying()
         
-        try player.updateAudioData(for: data2)
+        try player.initDeviceOrUpdate(for: data2)
         try player.startAudioPlaying()
         sleep(player.getDuration())
         try player.stopAudioPlaying()
         
-        try player.updateAudioData(for: data3)
+        try player.initDeviceOrUpdate(for: data3)
         try player.startAudioPlaying()
         sleep(player.getDuration())
         try player.stopAudioPlaying()
@@ -35,16 +35,17 @@ final class MiniAudioTests: XCTestCase {
     func testCapture() throws {
         do {
             let capturer = AudioCapturer()
-            try capturer.initAudioCaptureDevice(EncodingFormat.wav, AudioFormat.s16, 1, 16000)
+            try capturer.initCaptureDevice(EncodingFormat.wav, AudioFormat.s16, 1, 16000)
             try capturer.startAudioCapturing()
             sleep(5)
             capturer.closeCaptureDevice()
 
             let data = capturer.getData()
             let player = MiniAudio.AudioPlayer()
-            try player.initPlaybackDevice(for: data)
+            try player.initDeviceOrUpdate(for: data)
             try player.startAudioPlaying()
             sleep(player.getDuration())
+            try player.stopAudioPlaying()
             player.closePlaybackDevice()
         } catch {
             XCTFail("Unexpected error: \(error)")

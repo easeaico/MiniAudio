@@ -10,7 +10,7 @@ public enum MiniAudioErrors: Error {
 }
 
 public enum EncodingFormat {
-    case unknown, wav, flac, mp3,vorbis
+    case unknown, wav, flac, mp3, vorbis
 
     func maType() -> MiniAudioC.ma_encoding_format {
         switch self  {
@@ -104,13 +104,13 @@ public class AudioPlayer {
         self.ctx = MiniAudioC.PlaybackContext(device: MiniAudioC.ma_device(), audioBuffer: MiniAudioC.ma_audio_buffer(), duration: 0)
     }
 
-    public func initPlaybackDevice(for data: Data) throws {
+    public func initDeviceOrUpdate(for data: Data) throws {
         var d = data
         try d.withUnsafeMutableBytes { rawBufferPointer in
             let pointer = rawBufferPointer.bindMemory(to: UInt8.self).baseAddress!
             var audioData = MiniAudioC.AudioData(buffer: pointer, size: data.count, offset: 0)
             
-            let result = MiniAudioC.initPlackbackDevice(&self.ctx, &audioData)
+            let result = MiniAudioC.initDeviceOrUpdateData(&self.ctx, &audioData)
             if result == -1 || result == -2 {
                 throw MiniAudioErrors.decodeFormatFailed
             }
@@ -129,18 +129,6 @@ public class AudioPlayer {
         let result = MiniAudioC.startAudioPlaying(&self.ctx)
         if result != 0 {
             throw MiniAudioErrors.playingAudioFailed
-        }
-    }
-    
-    public func updateAudioData(for data: Data) throws {
-        var d = data
-        try d.withUnsafeMutableBytes { rawBufferPointer in
-            let pointer = rawBufferPointer.bindMemory(to: UInt8.self).baseAddress!
-            var audioData = MiniAudioC.AudioData(buffer: pointer, size: data.count, offset: 0)
-            let result = MiniAudioC.updateAudioData(&self.ctx, &audioData)
-            if result != 0 {
-                throw MiniAudioErrors.playingAudioFailed
-            }
         }
     }
     

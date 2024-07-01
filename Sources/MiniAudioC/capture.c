@@ -4,20 +4,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-
-static ma_result encoder_write_proc(ma_encoder *pEncoder,
-                                       const void *pBufferIn,
-                                       size_t bytesToWrite,
-                                       size_t *pBytesWritten) {
+static ma_result encoder_write_proc(ma_encoder *pEncoder, const void *pBufferIn,
+                                    size_t bytesToWrite,
+                                    size_t *pBytesWritten) {
   AudioData *data = (AudioData *)pEncoder->pUserData;
 
   if (data->offset < data->size) { // on seek
-    memcpy(data->buffer + data->offset, pBufferIn, sizeof(ma_uint8) * bytesToWrite);
+    memcpy(data->buffer + data->offset, pBufferIn,
+           sizeof(ma_uint8) * bytesToWrite);
     data->offset = data->size;
   } else { // on write
     ma_uint8 *newBuffer = (ma_uint8 *)realloc(
         data->buffer, sizeof(ma_uint8) * (bytesToWrite + data->offset));
-    memcpy(newBuffer + data->offset, pBufferIn, sizeof(ma_uint8) * bytesToWrite);
+    memcpy(newBuffer + data->offset, pBufferIn,
+           sizeof(ma_uint8) * bytesToWrite);
 
     data->buffer = newBuffer;
     *pBytesWritten += bytesToWrite;
@@ -48,12 +48,9 @@ void encode_data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   (void)pOutput;
 }
 
-int initCaptureDevice(CaptureContext *ctx, 
-                           ma_encoding_format encodingFormat,
-                           ma_format format,
-                           ma_uint32 channels, 
-                           ma_uint32 sampleRate,
-                           AudioData *audioData) {
+int initCaptureDevice(CaptureContext *ctx, ma_encoding_format encodingFormat,
+                      ma_format format, ma_uint32 channels,
+                      ma_uint32 sampleRate, AudioData *audioData) {
   ma_result result;
   ma_encoder_config encoderConfig;
   ma_device_config deviceConfig;
