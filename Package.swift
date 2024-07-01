@@ -32,7 +32,10 @@ let package = Package(
         .testTarget(
             name: "MiniAudioTests",
             dependencies: ["MiniAudio"],
-            resources: [.process("street.mp3")]
+            resources: [
+                .process("street1.mp3"),
+                .process("street2.mp3"),
+                .process("street3.mp3")]
         )
     ]
 )

@@ -4,13 +4,32 @@ import Foundation
 
 final class MiniAudioTests: XCTestCase {
     func testPlayback() throws {
-        let url = Bundle.module.url(forResource: "street", withExtension: "mp3")!
-        let audioData = try Data(contentsOf: url)
+        let url1 = Bundle.module.url(forResource: "street1", withExtension: "mp3")!
+        let url2 = Bundle.module.url(forResource: "street2", withExtension: "mp3")!
+        let url3 = Bundle.module.url(forResource: "street3", withExtension: "mp3")!
+        
+        let data1 = try Data(contentsOf: url1)
+        let data2 = try Data(contentsOf: url2)
+        let data3 = try Data(contentsOf: url3)
+        
         let player = MiniAudio.AudioPlayer()
-        try player.initAudioPlaybackDevice(forPlay: audioData)
+        
+        try player.initPlaybackDevice(for: data1)
         try player.startAudioPlaying()
         sleep(player.getDuration())
-        player.closeAudioPlaybackDevice()
+        try player.stopAudioPlaying()
+        
+        try player.updateAudioData(for: data2)
+        try player.startAudioPlaying()
+        sleep(player.getDuration())
+        try player.stopAudioPlaying()
+        
+        try player.updateAudioData(for: data3)
+        try player.startAudioPlaying()
+        sleep(player.getDuration())
+        try player.stopAudioPlaying()
+        
+        player.closePlaybackDevice()
     }
 
     func testCapture() throws {
@@ -19,14 +38,14 @@ final class MiniAudioTests: XCTestCase {
             try capturer.initAudioCaptureDevice(EncodingFormat.wav, AudioFormat.s16, 1, 16000)
             try capturer.startAudioCapturing()
             sleep(5)
-            capturer.closeAudioCaptureDevice()
+            capturer.closeCaptureDevice()
 
             let data = capturer.getData()
             let player = MiniAudio.AudioPlayer()
-            try player.initAudioPlaybackDevice(forPlay: data)
+            try player.initPlaybackDevice(for: data)
             try player.startAudioPlaying()
             sleep(player.getDuration())
-            player.closeAudioPlaybackDevice()
+            player.closePlaybackDevice()
         } catch {
             XCTFail("Unexpected error: \(error)")
         }

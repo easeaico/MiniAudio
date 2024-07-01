@@ -48,7 +48,7 @@ void encode_data_callback(ma_device *pDevice, void *pOutput, const void *pInput,
   (void)pOutput;
 }
 
-int initAudioCaptureDevice(CaptureContext *ctx, 
+int initCaptureDevice(CaptureContext *ctx, 
                            ma_encoding_format encodingFormat,
                            ma_format format,
                            ma_uint32 channels, 
@@ -96,7 +96,7 @@ int startAudioCapturing(CaptureContext *ctx) {
   return 0;
 }
 
-void closeAudioCaptureDevice(CaptureContext *ctx) {
+void closeCaptureDevice(CaptureContext *ctx) {
   ma_device_uninit(&ctx->device);
   ma_encoder_uninit(&ctx->encoder);
 }
